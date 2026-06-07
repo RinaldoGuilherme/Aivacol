@@ -10,6 +10,9 @@ import { CacheModule } from './modules/cache/cache.module';
 import { QueueModule } from './modules/queue/queue.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { HealthModule } from './health/health.module';
+import { BrandsModule } from './modules/brands/brands.module';
+import { ModelsModule } from './modules/models/models.module';
+import { VehiclesModule } from './modules/vehicles/vehicles.module';
 
 @Module({
   imports: [
@@ -35,6 +38,9 @@ import { HealthModule } from './health/health.module';
     QueueModule,
     AuthModule,
     HealthModule,
+    BrandsModule,
+    ModelsModule,
+    VehiclesModule,
   ],
 })
 export class AppModule {}
