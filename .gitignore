@@ -10,6 +10,7 @@ dist/
 # Documentation (exceto architecture.md)
 *.md
 !architecture.md
+!README.md
 
 
 #Packeage-lock.json

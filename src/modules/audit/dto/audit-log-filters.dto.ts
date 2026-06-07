@@ -14,7 +14,7 @@ export class AuditLogFiltersDto {
   @Type(() => Number)
   @IsInt()
   @Min(1)
-  page = 1;
+  page: number = 1;
 
   @ApiPropertyOptional({ default: 10, minimum: 1, maximum: 100 })
   @IsOptional()
@@ -22,7 +22,7 @@ export class AuditLogFiltersDto {
   @IsInt()
   @Min(1)
   @Max(100)
-  limit = 10;
+  limit: number = 10;
 
   @ApiPropertyOptional({ description: 'Filter by event name, e.g. vehicle.created' })
   @IsOptional()

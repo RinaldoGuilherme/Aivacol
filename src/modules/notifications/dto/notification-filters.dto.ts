@@ -21,7 +21,7 @@ export class NotificationFiltersDto {
   @Type(() => Number)
   @IsInt()
   @Min(1)
-  page = 1;
+  page: number = 1;
 
   @ApiPropertyOptional({ default: 10, minimum: 1, maximum: 100 })
   @IsOptional()
@@ -29,7 +29,7 @@ export class NotificationFiltersDto {
   @IsInt()
   @Min(1)
   @Max(100)
-  limit = 10;
+  limit: number = 10;
 
   @ApiPropertyOptional({ description: 'Filter by read status' })
   @IsOptional()

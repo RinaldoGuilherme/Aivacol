@@ -22,10 +22,13 @@ async function bootstrap() {
   );
 
   const config = new DocumentBuilder()
-    .setTitle('Aivacol API')
-    .setDescription('Technical test backend API')
-    .setVersion('1.0')
-    .addBearerAuth()
+    .setTitle('Aivacol Fleet API')
+    .setDescription(
+      'Backend API for fleet management with JWT authentication, relational persistence, asynchronous processing, audit logs, notifications and Redis cache.\n\n' +
+        '**Authentication:** obtain an access token via `POST /api/auth/login`, then click **Authorize** and paste the token to authenticate all protected endpoints.',
+    )
+    .setVersion('1.0.0')
+    .addBearerAuth({ type: 'http', scheme: 'bearer', bearerFormat: 'JWT' })
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
