@@ -3,9 +3,12 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { VehicleRepository } from './vehicle.repository';
+import { CacheService } from '../cache/cache.service';
+import { hashFilters } from '../cache/cache-key.util';
 import { ModelService } from '../models/model.service';
 import { CreateVehicleDto } from './dto/create-vehicle.dto';
 import { UpdateVehicleDto } from './dto/update-vehicle.dto';
@@ -24,15 +27,38 @@ import {
   VehicleEventName,
 } from '../queue/interfaces/vehicle-event.interface';
 
+const VEHICLE_LIST_KEY_PATTERN = 'vehicles:list:*';
+
 @Injectable()
 export class VehicleService {
   constructor(
     private readonly vehicleRepository: VehicleRepository,
     private readonly modelService: ModelService,
     private readonly queueService: QueueService,
+    private readonly cacheService: CacheService,
+    private readonly configService: ConfigService,
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
   ) {}
+
+  private get cacheTtl(): number {
+    return this.configService.getOrThrow<number>('CACHE_TTL_SECONDS');
+  }
+
+  private listKey(filters: VehicleFiltersDto): string {
+    return `vehicles:list:${hashFilters({ ...filters })}`;
+  }
+
+  private idKey(id: number): string {
+    return `vehicles:id:${id}`;
+  }
+
+  private async invalidateVehicleCache(id?: number): Promise<void> {
+    if (id !== undefined) {
+      await this.cacheService.del(this.idKey(id));
+    }
+    await this.cacheService.deleteByPattern(VEHICLE_LIST_KEY_PATTERN);
+  }
 
   private async checkUnique(
     field: 'licensePlate' | 'chassis' | 'renavam',
@@ -69,20 +95,47 @@ export class VehicleService {
 
     await this.publishEvent(VEHICLE_EVENTS.CREATED, vehicle.id, user);
 
+    // Cache Aside: a new vehicle changes every list result.
+    await this.invalidateVehicleCache();
+
     return vehicle;
   }
 
   async findAll(
     filters: VehicleFiltersDto,
   ): Promise<{ data: VehicleEntity[]; meta: PaginationMeta }> {
+    const key = this.listKey(filters);
+    const cached =
+      await this.cacheService.get<{ data: VehicleEntity[]; meta: PaginationMeta }>(
+        key,
+      );
+    if (cached) {
+      return cached;
+    }
+
     const { data, total } = await this.vehicleRepository.list(filters);
-    return {
+    const result = {
       data,
       meta: buildPaginationMeta(total, filters.page, filters.limit),
     };
+
+    await this.cacheService.set(key, result, this.cacheTtl);
+    return result;
   }
 
   async findOne(id: number): Promise<VehicleEntity> {
+    const key = this.idKey(id);
+    const cached = await this.cacheService.get<VehicleEntity>(key);
+    if (cached) {
+      return cached;
+    }
+
+    const vehicle = await this.getEntityOrThrow(id);
+    await this.cacheService.set(key, vehicle, this.cacheTtl);
+    return vehicle;
+  }
+
+  private async getEntityOrThrow(id: number): Promise<VehicleEntity> {
     const vehicle = await this.vehicleRepository.findById(id);
     if (!vehicle) {
       throw new NotFoundException(`Vehicle #${id} not found`);
@@ -95,7 +148,7 @@ export class VehicleService {
     dto: UpdateVehicleDto,
     user: AuthenticatedUser,
   ): Promise<VehicleEntity> {
-    const vehicle = await this.findOne(id);
+    const vehicle = await this.getEntityOrThrow(id);
 
     if (dto.modelId !== undefined && dto.modelId !== vehicle.modelId) {
       await this.modelService.findOne(dto.modelId);
@@ -120,13 +173,19 @@ export class VehicleService {
 
     await this.publishEvent(VEHICLE_EVENTS.UPDATED, updated.id, user);
 
+    // Cache Aside: drop this vehicle's entry and every list result.
+    await this.invalidateVehicleCache(updated.id);
+
     return updated;
   }
 
   async remove(id: number, user: AuthenticatedUser): Promise<void> {
-    const vehicle = await this.findOne(id);
+    const vehicle = await this.getEntityOrThrow(id);
     await this.vehicleRepository.softDelete(vehicle);
     await this.publishEvent(VEHICLE_EVENTS.DELETED, id, user);
+
+    // Cache Aside: drop this vehicle's entry and every list result.
+    await this.invalidateVehicleCache(id);
   }
 
   /**

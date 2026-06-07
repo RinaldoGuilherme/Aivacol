@@ -7,6 +7,7 @@ import { VehicleController } from './vehicle.controller';
 import { AuthModule } from '../auth/auth.module';
 import { ModelsModule } from '../models/models.module';
 import { QueueModule } from '../queue/queue.module';
+import { CacheModule } from '../cache/cache.module';
 import { UserEntity } from '../users/entities/user.entity';
 
 @Module({
@@ -15,6 +16,7 @@ import { UserEntity } from '../users/entities/user.entity';
     AuthModule,
     ModelsModule,
     QueueModule,
+    CacheModule,
   ],
   controllers: [VehicleController],
   providers: [VehicleService, VehicleRepository],

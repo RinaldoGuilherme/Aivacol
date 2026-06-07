@@ -38,6 +38,10 @@ export class EnvironmentVariables {
   @IsNumber()
   REDIS_PORT: number;
 
+  @Type(() => Number)
+  @IsNumber()
+  CACHE_TTL_SECONDS: number;
+
   @IsString()
   RABBITMQ_URL: string;
 
