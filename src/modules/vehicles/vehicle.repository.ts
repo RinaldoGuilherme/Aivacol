@@ -23,6 +23,19 @@ export class VehicleRepository {
     return this.repo.findOne({ where: { id } });
   }
 
+  /**
+   * Loads a vehicle with its model and brand relations. Includes soft-deleted
+   * rows so domain events (e.g. vehicle.deleted) can still resolve the model
+   * and brand names for the event payload.
+   */
+  async findByIdWithRelations(id: number): Promise<VehicleEntity | null> {
+    return this.repo.findOne({
+      where: { id },
+      relations: { model: { brand: true } },
+      withDeleted: true,
+    });
+  }
+
   async create(data: {
     licensePlate: string;
     chassis: string;

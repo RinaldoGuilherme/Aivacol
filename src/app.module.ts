@@ -13,6 +13,8 @@ import { HealthModule } from './health/health.module';
 import { BrandsModule } from './modules/brands/brands.module';
 import { ModelsModule } from './modules/models/models.module';
 import { VehiclesModule } from './modules/vehicles/vehicles.module';
+import { AuditModule } from './modules/audit/audit.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 
 @Module({
   imports: [
@@ -20,10 +22,12 @@ import { VehiclesModule } from './modules/vehicles/vehicles.module';
       isGlobal: true,
       validate,
     }),
-    ThrottlerModule.forRoot([{
-      ttl: 60000,
-      limit: 10,
-    }]),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 10,
+      },
+    ]),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: getDatabaseConfig,
@@ -41,6 +45,8 @@ import { VehiclesModule } from './modules/vehicles/vehicles.module';
     BrandsModule,
     ModelsModule,
     VehiclesModule,
+    AuditModule,
+    NotificationsModule,
   ],
 })
 export class AppModule {}

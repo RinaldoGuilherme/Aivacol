@@ -6,9 +6,16 @@ import { VehicleService } from './vehicle.service';
 import { VehicleController } from './vehicle.controller';
 import { AuthModule } from '../auth/auth.module';
 import { ModelsModule } from '../models/models.module';
+import { QueueModule } from '../queue/queue.module';
+import { UserEntity } from '../users/entities/user.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([VehicleEntity]), AuthModule, ModelsModule],
+  imports: [
+    TypeOrmModule.forFeature([VehicleEntity, UserEntity]),
+    AuthModule,
+    ModelsModule,
+    QueueModule,
+  ],
   controllers: [VehicleController],
   providers: [VehicleService, VehicleRepository],
   exports: [VehicleService],

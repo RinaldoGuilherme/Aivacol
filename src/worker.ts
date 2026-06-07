@@ -35,6 +35,10 @@ async function bootstrap() {
         queueOptions: {
           durable: true,
         },
+        // Process one message at a time and acknowledge manually only after the
+        // audit log and notification have been persisted (see the consumer).
+        prefetchCount: 1,
+        noAck: false,
       },
     },
   );

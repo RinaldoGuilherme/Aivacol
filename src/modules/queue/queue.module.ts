@@ -13,11 +13,14 @@ import { QueueService, RABBITMQ_CLIENT } from './queue.service';
         useFactory: (configService: ConfigService) => ({
           transport: Transport.RMQ,
           options: {
-            urls: [configService.get<string>('RABBITMQ_URL')],
-            queue: 'main_queue',
+            urls: [configService.getOrThrow<string>('RABBITMQ_URL')],
+            queue: configService.getOrThrow<string>('RABBITMQ_QUEUE'),
             queueOptions: {
               durable: true,
             },
+            // Mark published messages as persistent so they survive a broker
+            // restart while sitting in the durable queue.
+            persistent: true,
           },
         }),
       },

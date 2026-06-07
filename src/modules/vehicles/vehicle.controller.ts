@@ -35,7 +35,7 @@ export class VehicleController {
     @Body() dto: CreateVehicleDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    const data = await this.vehicleService.create(dto, user.id);
+    const data = await this.vehicleService.create(dto, user);
     return { data, message: 'Operation completed successfully' };
   }
 
@@ -60,15 +60,18 @@ export class VehicleController {
     @Body() dto: UpdateVehicleDto,
     @CurrentUser() user: AuthenticatedUser,
   ) {
-    const data = await this.vehicleService.update(id, dto, user.id);
+    const data = await this.vehicleService.update(id, dto, user);
     return { data, message: 'Operation completed successfully' };
   }
 
   @Delete(':id')
   @ApiOperation({ summary: 'Soft-delete a vehicle' })
   @HttpCode(HttpStatus.OK)
-  async remove(@Param('id', ParseIntPipe) id: number) {
-    await this.vehicleService.remove(id);
+  async remove(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    await this.vehicleService.remove(id, user);
     return { message: 'Operation completed successfully' };
   }
 }
