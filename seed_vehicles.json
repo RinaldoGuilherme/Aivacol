@@ -1,0 +1,26 @@
+[
+  {
+    "licensePlate": "BRA2E19",
+    "chassis": "9BWZZZ377VT004251",
+    "renavam": "12345678901",
+    "year": 2022,
+    "brand": "Toyota",
+    "model": "Corolla"
+  },
+  {
+    "licensePlate": "FRT5A48",
+    "chassis": "9BWZZZ377VT004252",
+    "renavam": "12345678902",
+    "year": 2023,
+    "brand": "Toyota",
+    "model": "Hilux"
+  },
+  {
+    "licensePlate": "COM8B73",
+    "chassis": "9BWZZZ377VT004253",
+    "renavam": "12345678903",
+    "year": 2024,
+    "brand": "Fiat",
+    "model": "Strada"
+  }
+]
