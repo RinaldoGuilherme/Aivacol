@@ -8,6 +8,7 @@ import { getMongoConfig } from './config/mongo.config';
 import { validate } from './config/env.validation';
 import { CacheModule } from './modules/cache/cache.module';
 import { QueueModule } from './modules/queue/queue.module';
+import { AuthModule } from './modules/auth/auth.module';
 import { HealthModule } from './health/health.module';
 
 @Module({
@@ -32,6 +33,7 @@ import { HealthModule } from './health/health.module';
     }),
     CacheModule,
     QueueModule,
+    AuthModule,
     HealthModule,
   ],
 })
